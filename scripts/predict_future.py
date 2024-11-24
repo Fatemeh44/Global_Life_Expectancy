@@ -1,7 +1,9 @@
-from prophet import Prophet
 import pandas as pd
+import numpy as np
 
 def predict_future(model, start_year, end_year):
-    future_years = pd.DataFrame({'ds': pd.date_range(f'{start_year}-01-01', f'{end_year}-01-01', freq='Y')})
-    forecast = model.predict(future_years)
-    return forecast[['ds', 'yhat']].rename(columns={'ds': 'Year', 'yhat': 'Life expectancy'})
+    future = model.make_future_dataframe(periods=(end_year - start_year + 1), freq='Y')
+    forecast = model.predict(future)
+    future_data = forecast[(forecast['ds'].dt.year >= start_year) & (forecast['ds'].dt.year <= end_year)]
+    future_data = future_data[['ds', 'yhat']]
+    return future_data
